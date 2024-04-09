@@ -6,7 +6,10 @@ from decimal import Decimal
 
 from django.test import TestCase
 from django.urls import reverse
-from core.models import Recipe
+from core.models import (
+    Recipe,
+    Tag,
+)
 
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -197,3 +200,87 @@ class PrivateRecipeApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
         self.assertTrue(Recipe.objects.filter(id=recipe.id).exists())
+
+    def test_create_recipe_with_tags(self):
+        """Test creating a recipe with tags"""
+        payload = {
+            'title': 'Sample title',
+            'time_minutes': 30,
+            'price': Decimal('2.50'),
+            'tag': [{'name': 'Vegan'}, {'name': 'Dessert'}],
+        }
+        res = self.client.post(RECIPES_URL, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe = Recipe.objects.filter(user=self.user)
+        self.assertEqual(recipe.count(), 1)
+        recipe = recipe[0]
+        self.assertEqual(recipe.tag.count(), 2)
+        for tag in payload['tag']:
+            exists = recipe.tag.filter(
+                user=self.user,
+                name=tag['name'],
+            ).exists()
+            self.assertTrue(exists)
+
+    def test_create_recipe_with_existing_tag(self):
+        """Test creating a recipe with existing tags"""
+        tag_indian = Tag.objects.create(user=self.user, name='indian')
+        payload = {
+            'title': 'Sample title',
+            'time_minutes': 30,
+            'price': Decimal('2.50'),
+            'tag': [{'name': 'indian'}, {'name': 'Breakfast'}],
+        }
+        res = self.client.post(RECIPES_URL, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipes = Recipe.objects.filter(user=self.user)
+        self.assertEqual(recipes.count(), 1)
+        recipe = recipes[0]
+        self.assertEqual(recipe.tag.count(), 2)
+        self.assertIn(tag_indian, recipe.tag.all())
+        for tag in payload['tag']:
+            exists = recipe.tag.filter(
+                user=self.user,
+                name=tag['name'],
+            ).exists()
+            self.assertTrue(exists)
+
+    def test_create_tag_on_update(self):
+        """Test create tag when updating a recipe"""
+        recipe = create_recipe(user=self.user)
+
+        payload = {'tag': [{'name': 'Lunch'}]}
+        url = detail_url(recipe.id)
+        res = self.client.patch(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        new_tag = Tag.objects.get(user=self.user, name='Lunch')
+        self.assertIn(new_tag, recipe.tag.all())
+
+    def test_update_recipe_assign_tag(self):
+        """Test assigning an existing tag when updating a recipe."""
+        tag_breakfast = Tag.objects.create(user=self.user, name='Breakfast')
+        recipe = create_recipe(user=self.user)
+        recipe.tag.add(tag_breakfast)
+
+        tag_lunch = Tag.objects.create(user=self.user, name='Lunch')
+        payload = {'tag': [{'name': 'Lunch'}]}
+        url = detail_url(recipe.id)
+        res = self.client.patch(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn(tag_lunch, recipe.tag.all())
+        self.assertNotIn(tag_breakfast, recipe.tag.all())
+
+    def test_clear_recipe_tags(self):
+        """Test clearing a recipes tags."""
+        tag = Tag.objects.create(user=self.user, name='Dessert')
+        recipe = create_recipe(user=self.user)
+        recipe.tag.add(tag)
+
+        payload = {'tag': []}
+        url = detail_url(recipe.id)
+        res = self.client.patch(url, payload, format='json')
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(recipe.tag.count(), 0)
