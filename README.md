@@ -75,6 +75,13 @@ Lint the code using Flake8:
 
     docker-compose run --rm app sh -c "flake8"
   
+## Deployment
+This project has been deployed on an AWS EC2 instance. Here are some screenshots:
+<img width="1008" alt="Screenshot 2024-04-23 at 21 38 34" src="https://github.com/NohaGad/recipe-app-api/assets/37811490/9080b9c3-5e98-48aa-b298-2d33d9f3401d">
+<img width="1008" alt="Screenshot 2024-04-23 at 21 38 46" src="https://github.com/NohaGad/recipe-app-api/assets/37811490/d8f7170a-ab26-4f54-a77a-50817d2bdd15">
+
+
+
 
 
 
