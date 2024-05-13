@@ -59,7 +59,7 @@ To access protected endpoints, users need to obtain an access token by sending a
 - `/api/recipe/recipe/{id}/`
 - `/api/recipe/ingredient/`
 - `/api/recipe/ingredient/{id}/`
-- `/api /recipe /recipe /{id} /upload-image/`
+- `/api/recipe/recipe/{id}/upload-image/`
 - `/api/recipe/tag/`
 - `/api/recipe/tag/{id}/`
 
