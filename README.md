@@ -53,16 +53,15 @@ To access protected endpoints, users need to obtain an access token by sending a
 
 ### Endpoints
 
-- `/api/recipes/`: 
-  - **GET**: Retrieve a list of all recipes.
-  - **POST**: Create a new recipe.
-- `/api/recipes/<id>/`: 
-  - **GET**: Retrieve details of a specific recipe.
-  - **PUT**: Update a specific recipe.
-  - **DELETE**: Delete a specific recipe.
-- `/api/tags/`: 
-  - **GET**: Retrieve a list of all tags.
-  - **POST**: Create a new tag.
+- `/api/user/`
+- `/api/user/token/`
+- `/api/recipe/recipe/`
+- `/api/recipe/recipe/{id}/`
+- `/api/recipe/ingredient/`
+- `/api/recipe/ingredient/{id}/`
+- `/api /recipe /recipe /{id} /upload-image/`
+- `/api/recipe/tag/`
+- `/api/recipe/tag/{id}/`
 
 ## Testing
 ### Running Unit Tests
